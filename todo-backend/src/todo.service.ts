@@ -41,7 +41,7 @@ export class TodoService {
 
   async create(
     authUser: { id: string; email?: string },
-    data: { title: string; assignedToId?: string | null },
+    data: { title: string; assignedToId?: string | null; dueDate?: string | null },
   ): Promise<Todo> {
     await this.ensureUser(authUser);
 
@@ -67,6 +67,7 @@ export class TodoService {
         title: data.title,
         creatorId: authUser.id,
         assignedToId: data.assignedToId ?? null,
+        due_date: data.dueDate ? new Date(data.dueDate) : null,
       },
     });
   }
@@ -74,7 +75,12 @@ export class TodoService {
   async update(
     authUser: { id: string; email?: string },
     id: number,
-    data: { title?: string; completed?: boolean; assignedToId?: string | null },
+    data: {
+      title?: string;
+      completed?: boolean;
+      assignedToId?: string | null;
+      dueDate?: string | null;
+    },
   ): Promise<Todo> {
     await this.ensureUser(authUser);
 
@@ -101,6 +107,9 @@ export class TodoService {
         }
         updateData.assignedToId = data.assignedToId;
       }
+    }
+    if (data.dueDate !== undefined) {
+      updateData.due_date = data.dueDate ? new Date(data.dueDate) : null;
     }
     
     return this.prismaService.prisma.todo.update({

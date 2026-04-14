@@ -22,6 +22,14 @@
           @keyup.enter="addTodo"
           class="todo-input"
         />
+        <q-input
+          v-model="newTodoDueDate"
+          type="date"
+          outlined
+          dense
+          label="Due date (optional)"
+          class="due-date-input"
+        />
         <q-select
           v-model="selectedAssigneeId"
           :options="memberOptions"
@@ -60,6 +68,9 @@
             <q-item-label caption>
               Assigned to: {{ todo.assignee?.fullName || todo.assignee?.email || 'Unassigned' }}
             </q-item-label>
+            <q-item-label caption>
+              Created: {{ formatDate(todo.createdAt) }} | Due: {{ formatDate(todo.dueDate) }}
+            </q-item-label>
           </q-item-section>
 
           <q-item-section side>
@@ -82,6 +93,7 @@ export default {
     const router = useRouter()
     const todos = ref([])
     const newTodoTitle = ref('')
+    const newTodoDueDate = ref('')
     const selectedAssigneeId = ref(null)
     const memberOptions = ref([])
     const loading = ref(false)
@@ -120,9 +132,11 @@ export default {
         const response = await api.post('/todos', {
           title: newTodoTitle.value,
           assignedToId: selectedAssigneeId.value,
+          dueDate: newTodoDueDate.value || null,
         })
         todos.value.unshift(response.data)
         newTodoTitle.value = ''
+        newTodoDueDate.value = ''
         selectedAssigneeId.value = null
       } catch (err) {
         error.value = 'Failed to add todo, please try again'
@@ -169,9 +183,15 @@ export default {
       router.push('/profile')
     }
 
+    const formatDate = (value) => {
+      if (!value) return 'No due date'
+      return new Date(value).toLocaleDateString()
+    }
+
     return {
       todos,
       newTodoTitle,
+      newTodoDueDate,
       selectedAssigneeId,
       memberOptions,
       loading,
@@ -180,6 +200,7 @@ export default {
       toggleTodo,
       deleteTodo,
       goToProfile,
+      formatDate,
       logout,
     }
   },
@@ -227,9 +248,9 @@ p {
 
 .input-row {
   margin-bottom: 16px;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
-  grid-template-columns: minmax(280px, 1fr) 280px auto;
   align-items: center;
 }
 
@@ -238,20 +259,40 @@ p {
 }
 
 .assignee-select {
-  max-width: 280px;
+  flex: 1 1 240px;
+  min-width: 220px;
+}
+
+.due-date-input {
+  flex: 0 1 220px;
+  min-width: 180px;
+}
+
+.todo-input {
+  flex: 1 1 260px;
+  min-width: 220px;
 }
 
 .add-btn {
   height: 40px;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 @media (max-width: 900px) {
   .input-row {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .assignee-select {
-    max-width: 100%;
+  .assignee-select,
+  .due-date-input,
+  .todo-input {
+    min-width: 100%;
+  }
+
+  .add-btn {
+    width: 100%;
   }
 }
 

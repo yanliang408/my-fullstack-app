@@ -22,6 +22,7 @@ function formatTodo(todo: any) {
     title: todo.title,
     completed: todo.is_completed ?? todo.completed ?? false,
     createdAt: todo.created_at ?? todo.createdAt,
+    dueDate: todo.due_date ?? todo.dueDate ?? null,
     updatedAt: todo.updated_at ?? todo.updatedAt,
     assignee: todo.assignee
       ? {
@@ -61,7 +62,7 @@ export class TodoController {
   @Post()
   async create(
     @Req() req: AuthenticatedRequest,
-    @Body() data: { title: string; assignedToId?: string | null },
+    @Body() data: { title: string; assignedToId?: string | null; dueDate?: string | null },
   ): Promise<any> {
     const todo = await this.todoService.create(req.user, data);
     return formatTodo(todo);
@@ -71,7 +72,13 @@ export class TodoController {
   async update(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: { title?: string; completed?: boolean; assignedToId?: string | null },
+    @Body()
+    data: {
+      title?: string;
+      completed?: boolean;
+      assignedToId?: string | null;
+      dueDate?: string | null;
+    },
   ): Promise<any> {
     const todo = await this.todoService.update(req.user, id, data);
     return formatTodo(todo);
