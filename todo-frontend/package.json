@@ -1,0 +1,27 @@
+{
+  "name": "todo-frontend",
+  "version": "0.0.1",
+  "description": "A Quasar Framework app",
+  "productName": "Todo App",
+  "author": "",
+  "private": true,
+  "scripts": {
+    "dev": "quasar dev",
+    "build": "quasar build",
+    "lint": "eslint --ext .js,.vue src",
+    "test": "echo \"No test specified\" && exit 0"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.18.0",
+    "axios": "^1.6.0",
+    "quasar": "^2.19.3",
+    "vue": "^3.3.4",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@quasar/app-vite": "^2.6.0",
+    "@quasar/cli": "^4.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
