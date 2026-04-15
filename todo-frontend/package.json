@@ -5,6 +5,9 @@
   "productName": "Todo App",
   "author": "",
   "private": true,
+  "engines": {
+    "node": ">=22.22.0"
+  },
   "scripts": {
   "dev": "quasar dev",
   "build": "quasar build", 
