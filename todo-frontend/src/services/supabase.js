@@ -1,12 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY
-
-export const avatarBucket = process.env.VITE_SUPABASE_AVATAR_BUCKET || 'avatars'
-
 export function getSupabaseClient(accessToken) {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL
+  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY
+
+  console.log('[Supabase Debug] Config Check:', {
+    hasUrl: !!supabaseUrl,
+    hasKey: !!supabaseAnonKey,
+    bucket: process.env.VITE_SUPABASE_AVATAR_BUCKET || 'avatars'
+  })
+
   if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('[Supabase] Missing environment variables.')
     return null
   }
 
@@ -22,5 +27,7 @@ export function getSupabaseClient(accessToken) {
 
   return createClient(supabaseUrl, supabaseAnonKey, options)
 }
+
+export const avatarBucket = process.env.VITE_SUPABASE_AVATAR_BUCKET || 'avatars'
 
 export const supabase = getSupabaseClient(null)
