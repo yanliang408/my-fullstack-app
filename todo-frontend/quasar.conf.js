@@ -21,7 +21,10 @@ export default defineConfig(function (/* ctx */) {
       gzip: false,
       analyze: false,
       env: {
-        API_URL: process.env.API_URL || 'http://localhost:3000',
+        VITE_API_URL: process.env.VITE_API_URL || 'http://localhost:3000',
+        VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+        VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY,
+        VITE_SUPABASE_AVATAR_BUCKET: process.env.VITE_SUPABASE_AVATAR_BUCKET || 'avatar'
       },
       extendWebpack (cfg) {
       },
