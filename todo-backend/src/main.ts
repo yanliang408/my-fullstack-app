@@ -16,7 +16,8 @@ async function bootstrap() {
     origin: [
       'https://front-production-98bd.up.railway.app', // Your actual Railway frontend domain
       'http://localhost:9000', // Default Quasar dev port
-      'http://localhost:8080'  // Alternative dev port
+      'http://localhost:8080',// Alternative dev port
+      'http://localhost:8081'// Another alternative dev port
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true, // Must be true if using Cookies or Authorization headers
