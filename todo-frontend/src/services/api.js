@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { getAccessToken } from '../utils/auth';
 
+const apiBaseUrl = process.env.VITE_API_URL || 'http://localhost:3003';
+
 const api = axios.create({
-  baseURL: 'http://localhost:3003',
+  baseURL: apiBaseUrl,
 });
 
 api.interceptors.request.use((config) => {
