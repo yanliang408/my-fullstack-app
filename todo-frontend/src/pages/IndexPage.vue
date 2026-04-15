@@ -7,7 +7,19 @@
           <p>Testing environment with Quasar + NestJS + Supabase</p>
         </div>
         <div class="btn-group">
-          <q-btn icon="person" label="Profile" color="secondary" @click="goToProfile" />
+          <q-btn
+            v-if="!currentUserAvatarUrl"
+            icon="person"
+            label="Profile"
+            color="secondary"
+            @click="goToProfile"
+          />
+          <q-btn v-else color="secondary" @click="goToProfile">
+            <q-avatar size="24px" class="q-mr-sm">
+              <img :src="currentUserAvatarUrl" alt="Profile avatar" />
+            </q-avatar>
+            <span>Profile</span>
+          </q-btn>
           <q-btn icon="logout" label="Logout" color="negative" @click="logout" />
         </div>
       </div>
@@ -42,7 +54,36 @@
           clearable
           label="Assign to teammate"
           class="assignee-select"
-        />
+        >
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps">
+              <q-item-section class="assignee-option-content">
+                <q-avatar size="24px">
+                  <img
+                    v-if="scope.opt.avatarUrl"
+                    :src="scope.opt.avatarUrl"
+                    :alt="scope.opt.label"
+                  />
+                  <span v-else>{{ getInitial(scope.opt.label) }}</span>
+                </q-avatar>
+                <q-item-label>{{ scope.opt.label }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+          <template v-slot:selected-item="scope">
+            <div class="selected-assignee">
+              <q-avatar size="20px">
+                <img
+                  v-if="scope.opt.avatarUrl"
+                  :src="scope.opt.avatarUrl"
+                  :alt="scope.opt.label"
+                />
+                <span v-else>{{ getInitial(scope.opt.label) }}</span>
+              </q-avatar>
+              <span>{{ scope.opt.label }}</span>
+            </div>
+          </template>
+        </q-select>
         <q-btn icon="add" label="Add" color="primary" @click="addTodo" class="add-btn" />
       </div>
 
@@ -65,8 +106,20 @@
 
           <q-item-section>
             <q-item-label :class="{ completed: todo.completed }">{{ todo.title }}</q-item-label>
-            <q-item-label caption>
-              Assigned to: {{ todo.assignee?.fullName || todo.assignee?.email || 'Unassigned' }}
+            <q-item-label caption class="assignee-line">
+              <span>Assigned to:</span>
+              <template v-if="todo.assignee">
+                <q-avatar size="20px">
+                  <img
+                    v-if="todo.assignee.avatarUrl"
+                    :src="todo.assignee.avatarUrl"
+                    :alt="todo.assignee.fullName || todo.assignee.email || 'Assignee avatar'"
+                  />
+                  <span v-else>{{ (todo.assignee.fullName || todo.assignee.email || 'U').charAt(0).toUpperCase() }}</span>
+                </q-avatar>
+                <span>{{ todo.assignee.fullName || todo.assignee.email }}</span>
+              </template>
+              <span v-else>Unassigned</span>
             </q-item-label>
             <q-item-label caption>
               Created: {{ formatDate(todo.createdAt) }} | Due: {{ formatDate(todo.dueDate) }}
@@ -96,6 +149,7 @@ export default {
     const newTodoDueDate = ref('')
     const selectedAssigneeId = ref(null)
     const memberOptions = ref([])
+    const currentUserAvatarUrl = ref('')
     const loading = ref(false)
     const error = ref(null)
 
@@ -119,9 +173,19 @@ export default {
         memberOptions.value = response.data.map((member) => ({
           label: member.fullName || member.email,
           value: member.id,
+          avatarUrl: member.avatarUrl || '',
         }))
       } catch (err) {
         console.error(err)
+      }
+    }
+
+    const fetchCurrentUserAvatar = async () => {
+      try {
+        const response = await api.get('/profile/me')
+        currentUserAvatarUrl.value = response.data?.profile?.avatarUrl || ''
+      } catch (err) {
+        currentUserAvatarUrl.value = ''
       }
     }
 
@@ -172,6 +236,7 @@ export default {
     onMounted(() => {
       fetchTodos()
       fetchCompanyMembers()
+      fetchCurrentUserAvatar()
     })
 
     const logout = () => {
@@ -188,12 +253,15 @@ export default {
       return new Date(value).toLocaleDateString()
     }
 
+    const getInitial = (value) => (value || 'U').charAt(0).toUpperCase()
+
     return {
       todos,
       newTodoTitle,
       newTodoDueDate,
       selectedAssigneeId,
       memberOptions,
+      currentUserAvatarUrl,
       loading,
       error,
       addTodo,
@@ -201,6 +269,7 @@ export default {
       deleteTodo,
       goToProfile,
       formatDate,
+      getInitial,
       logout,
     }
   },
@@ -307,5 +376,29 @@ p {
 .completed {
   text-decoration: line-through;
   color: #8a8f98;
+}
+
+.assignee-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.selected-assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.assignee-option-content {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
 }
 </style>
